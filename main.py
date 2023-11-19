@@ -2,6 +2,14 @@ import simpy
 import tkinter as tk
 import random
 
+from fpdf import FPDF
+from tkinter import *
+from tkinter import filedialog
+from PIL import ImageTk, Image
+import tkinter.messagebox
+from tkinter import ttk
+from pygame import FULLSCREEN
+
 coordinates = {
     "Daet": (10, 5),
     "banana": (15, 8),
@@ -56,8 +64,19 @@ def start_simulation():
         print(f"An error occurred: {e}")
 
 # Create the Tkinter GUI
+
 root = tk.Tk()
 root.title("Rice Distribution Simulation")
+window_width = 400
+window_height = 300
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+x_position = (screen_width - window_width) // 2
+y_position = (screen_height - window_height) // 2
+root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+# Set the background color to light blue
+root.configure(bg="#add8e6")
 
 # Define starting_location and destinations after creating Tkinter root window
 starting_locations = {
@@ -70,53 +89,54 @@ destinations = {
 
 # Create labels and input fields for parameters
 num_vehicles_label = tk.Label(root, text="Number of Vehicles:")
-num_vehicles_label.pack()
+num_vehicles_label.pack(side="top", pady=5)
 num_vehicles_entry = tk.Entry(root)
-num_vehicles_entry.pack()
+num_vehicles_entry.pack(side="top", pady=5)
 
+# Number of Markets
 num_markets_label = tk.Label(root, text="Number of Markets:")
-num_markets_label.pack()
+num_markets_label.pack(side="top", pady=5)
 num_markets_entry = tk.Entry(root)
-num_markets_entry.pack()
+num_markets_entry.pack(side="top", pady=5)
 
+# Quantity of Rice
 quantity_rice_label = tk.Label(root, text="Quantity of Rice (per vehicle):")
-quantity_rice_label.pack()
+quantity_rice_label.pack(side="top", pady=5)
 quantity_rice_entry = tk.Entry(root)
-quantity_rice_entry.pack()
+quantity_rice_entry.pack(side="top", pady=5)
 
+# Traffic Factor
 traffic_factor_label = tk.Label(root, text="Traffic Factor:")
-traffic_factor_label.pack()
+traffic_factor_label.pack(side="top", pady=5)
 traffic_factor_entry = tk.Entry(root)
-traffic_factor_entry.pack()
+traffic_factor_entry.pack(side="top", pady=5)
 
-# Create dropdown menus for starting location and destination
+# Starting Location
 starting_location_label = tk.Label(root, text="Starting Location:")
-starting_location_label.pack()
-
-starting_location_options = list(starting_locations.keys())
+starting_location_label.pack(side="top", pady=5)
+starting_location_options = ["Location1", "Location2", "Location3"]  # Replace with your data
 starting_location_var = tk.StringVar(root)
 starting_location_var.set(starting_location_options[0])  # Set default value
-
 starting_location_dropdown = tk.OptionMenu(root, starting_location_var, *starting_location_options)
-starting_location_dropdown.pack()
+starting_location_dropdown.pack(side="top", pady=5)
 
+# Destination
 destination_label = tk.Label(root, text="Destination:")
-destination_label.pack()
-
-destination_options = list(destinations.keys())
+destination_label.pack(side="top", pady=5)
+destination_options = ["Destination1", "Destination2", "Destination3"]  # Replace with your data
 destination_var = tk.StringVar(root)
 destination_var.set(destination_options[0])  # Set default value
-
 destination_dropdown = tk.OptionMenu(root, destination_var, *destination_options)
-destination_dropdown.pack()
+destination_dropdown.pack(side="top", pady=5)
 
-# Create a button to start the simulation
+# Start Simulation Button
 start_button = tk.Button(root, text="Start Simulation", command=start_simulation)
-start_button.pack()
+start_button.pack(side="top", pady=10)
 
-# Create a label to display the simulation status
+# Simulation Status
 status_label = tk.Label(root, text="Simulation Ready...")
-status_label.pack()
+status_label.pack(side="top", pady=5)
+
 
 # Keep the GUI running until it is closed
 root.mainloop()
