@@ -47,6 +47,15 @@ class DataEntryForm(ttk.Frame):
         self.master = master
         super().__init__(master, padding=(20, 10))
         self.pack(fill=BOTH, expand=YES)
+        self.main_win_width = 640
+        self.font_size = 12
+        self.master = master
+        self.top_frame = ttk.Frame(width=self.main_win_width - 100, height=100)
+        self.top_frame.pack(side=ttk.TOP)
+
+        self.bottom_frame = ttk.Frame(width=self.main_win_width - 20, height=400)
+        self.bottom_frame.pack(side=ttk.BOTTOM)
+
 
         # form variables
         self.num_vehicles = ttk.StringVar(value="")
