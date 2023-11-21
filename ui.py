@@ -1,25 +1,32 @@
 import tkinter as tk
 from ttkbootstrap.constants import *
 import ttkbootstrap as ttk
+from PIL import ImageTk, Image
+import os
 
 class StartingWindow(ttk.Frame):
     def __init__(self, master):
-        self.main_win_width = 640
-        self.font_size = 12
-        self.master = master
-        self.top_frame = ttk.Frame(width= self.main_win_width - 100, height=100)
-        self.top_frame.pack(side=ttk.TOP)
-
-        self.bottom_frame = ttk.Frame( width=self.main_win_width - 20, height=400)
-        self.bottom_frame.pack(side=ttk.BOTTOM)
         super().__init__(master, padding=(20, 10))
         self.pack(fill=BOTH, expand=YES)
+        self.main_win_width = 1600
+        self.font_size = 12
+        self.master = master
+        self.top_frame = ttk.Frame(width=self.main_win_width - 100, height=100)
+        self.top_frame.pack(side=ttk.TOP)
 
-        hdr_ask = "Are you ready"
-        hdr1 = ttk.Label(master=self, text=hdr_ask, width=50, font=('Helvetica', 25))
-        hdr1.pack(fill=X, pady=10)
+        self.bottom_frame = ttk.Frame(width=self.main_win_width - 20, height=400)
+        self.bottom_frame.pack(side=ttk.BOTTOM)
 
+
+        image1 = Image.open("Are You Ready (2).png")
+        test = ImageTk.PhotoImage(image1)
+        image1 = image1.resize((50, 50))
+        label1 = tk.Label(image=test)
+        label1.image = test
+        # Position image
+        label1.place(x=500, y=20)
         self.start_btn()
+
 
     def start_btn(self):
         """Create the application buttonbox"""
@@ -35,7 +42,7 @@ class StartingWindow(ttk.Frame):
         )
         strt_btn.pack(side=tk.LEFT, padx=(130, 5))
         strt_btn.focus_set()
-
+        container.place(x=10, y=170)
     def start(self):
         """Initialize the DataEntryForm"""
         self.destroy()  # Destroy the starting window
@@ -45,14 +52,13 @@ class StartingWindow(ttk.Frame):
 class DataEntryForm(ttk.Frame):
     def __init__(self, master):
         self.master = master
+
         super().__init__(master, padding=(20, 10))
         self.pack(fill=BOTH, expand=YES)
-        self.main_win_width = 640
+        self.main_win_width = 1600
         self.font_size = 12
-        self.master = master
         self.top_frame = ttk.Frame(width=self.main_win_width - 100, height=100)
         self.top_frame.pack(side=ttk.TOP)
-
         self.bottom_frame = ttk.Frame(width=self.main_win_width - 20, height=400)
         self.bottom_frame.pack(side=ttk.BOTTOM)
 
@@ -122,6 +128,7 @@ class DataEntryForm(ttk.Frame):
 
 
 if __name__ == "__main__":
+
     start = ttk.Window("Rice Distribution Simulation", themename="superhero", resizable=(True, True))
     StartingWindow(start)
     start.mainloop()
