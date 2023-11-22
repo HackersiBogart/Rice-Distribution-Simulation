@@ -42,14 +42,13 @@ class DataEntryForm(tk.Tk):
         self.destination_label.grid(row=0, column=1)
         self.destination_combobox.grid(row=1, column=1)
 
-        self.title_label = tk.Label(user_info_frame, text="Distance")
+        self.distance_label = tk.Label(user_info_frame, text="Distance")
         self.distance_entry = ttk.Entry(user_info_frame)
-        self.title_combobox = ttk.Combobox(user_info_frame, values=["", "Mr.", "Ms.", "Dr."])
-        self.title_label.grid(row=0, column=2)
-        self.title_combobox.grid(row=1, column=2)
+        self.distance_label.grid(row=0, column=2)
+        self.distance_entry.grid(row=1, column=2)
 
-        self.age_label = tk.Label(user_info_frame, text="Age")
-        self.age_spinbox = tk.Spinbox(user_info_frame, from_=18, to=110)
+        self.age_label = tk.Label(user_info_frame, text="Number of helper")
+        self.age_spinbox = tk.Spinbox(user_info_frame, from_=1, to=110)
         self.age_label.grid(row=2, column=0)
         self.age_spinbox.grid(row=3, column=0)
 
