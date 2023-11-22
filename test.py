@@ -8,7 +8,7 @@ class DataEntryForm(tk.Tk):
     def __init__(
         self,
         title="Data Entry Form",
-        themename="litera",
+        themename="superhero",
         iconphoto='',
         size=None,
         position=None,
@@ -22,29 +22,28 @@ class DataEntryForm(tk.Tk):
         alpha=1.0,
     ):
         super().__init__()
-
+        self.style = ttk.Style(theme=themename)
         self.title(title)
         self.geometry("700x500")  # Set your preferred size
         self.place_window_center()
-
         frame = tk.Frame(self)
         frame.pack()
 
         # Saving User Info
-        user_info_frame = ttk.LabelFrame(frame, text="User Information")
+        user_info_frame = ttk.LabelFrame(frame, bootstyle="secondary", text="Data Input")
         user_info_frame.grid(row=0, column=0, padx=20, pady=10)
 
-        self.first_name_label = tk.Label(user_info_frame, text="First Name")
-        self.first_name_label.grid(row=0, column=0)
-        self.last_name_label = tk.Label(user_info_frame, text="Last Name")
-        self.last_name_label.grid(row=0, column=1)
+        self.Start_point_label = tk.Label(user_info_frame, text="Starting Pont")
+        self.Start_point_combobox = ttk.Combobox(user_info_frame, values=["", "Daet", "Talisay", "Basud"])
+        self.Start_point_label.grid(row=0, column=0)
+        self.Start_point_combobox.grid(row=1, column=0)
+        self.destination_label = tk.Label(user_info_frame, text="Destination")
+        self.destination_combobox = ttk.Combobox(user_info_frame, values=["", "Daet", "Talisay", "Basud"])
+        self.destination_label.grid(row=0, column=1)
+        self.destination_combobox.grid(row=1, column=1)
 
-        self.first_name_entry = tk.Entry(user_info_frame)
-        self.last_name_entry = tk.Entry(user_info_frame)
-        self.first_name_entry.grid(row=1, column=0)
-        self.last_name_entry.grid(row=1, column=1)
-
-        self.title_label = tk.Label(user_info_frame, text="Title")
+        self.title_label = tk.Label(user_info_frame, text="Distance")
+        self.distance_entry = ttk.Entry(user_info_frame)
         self.title_combobox = ttk.Combobox(user_info_frame, values=["", "Mr.", "Ms.", "Dr."])
         self.title_label.grid(row=0, column=2)
         self.title_combobox.grid(row=1, column=2)
@@ -66,10 +65,10 @@ class DataEntryForm(tk.Tk):
             widget.grid_configure(padx=10, pady=5)
 
         # Saving Course Info
-        self.courses_frame = tk.LabelFrame(frame)
+        self.courses_frame = ttk.LabelFrame(frame, bootstyle="secondary", text="Registration Status")
         self.courses_frame.grid(row=1, column=0, sticky="news", padx=20, pady=10)
 
-        self.registered_label = tk.Label(self.courses_frame, text="Registration Status")
+        self.registered_label = tk.Label(self.courses_frame )
 
         self.reg_status_var = tk.StringVar(value="Not Registered")
         self.registered_check = tk.Checkbutton(self.courses_frame, text="Currently Registered",
@@ -92,7 +91,7 @@ class DataEntryForm(tk.Tk):
             widget.grid_configure(padx=10, pady=5)
 
         # Accept terms
-        self.terms_frame = tk.LabelFrame(frame, text="Terms & Conditions")
+        self.terms_frame = ttk.LabelFrame(frame, bootstyle="secondary", text="Terms & Conditions")
         self.terms_frame.grid(row=2, column=0, sticky="news", padx=20, pady=10)
 
         self.accept_var = tk.StringVar(value="Not Accepted")
@@ -101,7 +100,7 @@ class DataEntryForm(tk.Tk):
         self.terms_check.grid(row=0, column=0)
 
         # Button
-        self.button = tk.Button(frame, text="Enter data", command=self.enter_data)
+        self.button = ttk.Button(frame, bootstyle="info-outline", text="Enter data", command=self.enter_data)
         self.button.grid(row=3, column=0, sticky="news", padx=20, pady=10)
 
     def place_window_center(self):
@@ -146,5 +145,6 @@ class DataEntryForm(tk.Tk):
 
 
 if __name__ == "__main__":
+
     app = DataEntryForm()
     app.mainloop()
