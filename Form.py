@@ -1,110 +1,35 @@
 import tkinter as tk
 from ttkbootstrap.constants import *
 import ttkbootstrap as ttk
-from tkinter import messagebox
+from pathlib import Path
+from itertools import cycle
+from PIL import Image, ImageTk, ImageSequence
+
+LARGE_FONT = ("Verdana", 12)
 
 
-class DataEntryForm(tk.Tk):
-    def __init__(
-        self,
-        title="Data Entry Form",
-        themename="superhero",
-        iconphoto='',
-        size=None,
-        position=None,
-        minsize=None,
-        maxsize=None,
-        resizable=None,
-        hdpi=True,
-        scaling=None,
-        transient=None,
-        overrideredirect=False,
-        alpha=1.0,
-    ):
-        super().__init__()
-        self.style = ttk.Style(theme=themename)
-        self.title(title)
-        self.geometry("700x500")  # Set your preferred size
+class SeaofBTCapp(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+        container = tk.Frame(self)
+        container.grid(row=0, column=0, sticky="nsew")
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
         self.place_window_center()
-        frame = tk.Frame(self)
-        frame.pack()
+        self.frames = {}
 
-        # Saving User Info
-        user_info_frame = ttk.LabelFrame(frame, bootstyle="secondary", text="Data Input")
-        user_info_frame.grid(row=0, column=0, padx=20, pady=10)
+        for F in (StartPage, PageOne, PageTwo):
+            frame = F(container, self)
+            self.frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
 
-        self.Start_point_label = tk.Label(user_info_frame, text="Starting Pont")
-        self.Start_point_combobox = ttk.Combobox(user_info_frame, values=["", "Daet", "Talisay", "Basud"])
-        self.Start_point_label.grid(row=0, column=0)
-        self.Start_point_combobox.grid(row=1, column=0)
-        self.destination_label = tk.Label(user_info_frame, text="Destination")
-        self.destination_combobox = ttk.Combobox(user_info_frame, values=["", "Daet", "Talisay", "Basud"])
-        self.destination_label.grid(row=0, column=1)
-        self.destination_combobox.grid(row=1, column=1)
+        self.show_frame(StartPage)
 
-        self.distance_label = tk.Label(user_info_frame, text="Distance")
-        self.distance_entry = ttk.Entry(user_info_frame)
-        self.distance_label.grid(row=0, column=2)
-        self.distance_entry.grid(row=1, column=2)
-
-        self.age_label = tk.Label(user_info_frame, text="Number of helper")
-        self.age_spinbox = tk.Spinbox(user_info_frame, from_=1, to=110)
-        self.age_label.grid(row=2, column=0)
-        self.age_spinbox.grid(row=3, column=0)
-
-        self.nationality_label = tk.Label(user_info_frame, text="Nationality")
-        self.nationality_combobox = ttk.Combobox(user_info_frame,
-                                                 values=["Africa", "Antarctica", "Asia", "Europe", "North America",
-                                                         "Oceania",
-                                                         "South America"])
-        self.nationality_label.grid(row=2, column=1)
-        self.nationality_combobox.grid(row=3, column=1)
-
-        for widget in user_info_frame.winfo_children():
-            widget.grid_configure(padx=10, pady=5)
-
-        # Saving Course Info
-        self.courses_frame = ttk.LabelFrame(frame, bootstyle="secondary", text="Registration Status")
-        self.courses_frame.grid(row=1, column=0, sticky="news", padx=20, pady=10)
-
-        self.registered_label = tk.Label(self.courses_frame )
-
-        self.reg_status_var = tk.StringVar(value="Not Registered")
-        self.registered_check = tk.Checkbutton(self.courses_frame, text="Currently Registered",
-                                               variable=self.reg_status_var, onvalue="Registered", offvalue="Not registered")
-
-        self.registered_label.grid(row=0, column=0)
-        self.registered_check.grid(row=1, column=0)
-
-        self.numcourses_label = tk.Label(self.courses_frame, text="# Completed Courses")
-        self.numcourses_spinbox = tk.Spinbox(self.courses_frame, from_=0, to='infinity')
-        self.numcourses_label.grid(row=0, column=1)
-        self.numcourses_spinbox.grid(row=1, column=1)
-
-        self.numsemesters_label = tk.Label(self.courses_frame, text="# Semesters")
-        self.numsemesters_spinbox = tk.Spinbox(self.courses_frame, from_=0, to="infinity")
-        self.numsemesters_label.grid(row=0, column=2)
-        self.numsemesters_spinbox.grid(row=1, column=2)
-
-        for widget in self.courses_frame.winfo_children():
-            widget.grid_configure(padx=10, pady=5)
-
-        # Accept terms
-        self.terms_frame = ttk.LabelFrame(frame, bootstyle="secondary", text="Terms & Conditions")
-        self.terms_frame.grid(row=2, column=0, sticky="news", padx=20, pady=10)
-
-        self.accept_var = tk.StringVar(value="Not Accepted")
-        self.terms_check = tk.Checkbutton(self.terms_frame, text="I accept the terms and conditions.",
-                                          variable=self.accept_var, onvalue="Accepted", offvalue="Not Accepted")
-        self.terms_check.grid(row=0, column=0)
-
-        # Button
-        self.button = ttk.Button(frame, bootstyle="info-outline", text="Enter data", command=self.enter_data)
-        self.button.grid(row=3, column=0, sticky="news", padx=20, pady=10)
+    def show_frame(self, cont):
+        frame = self.frames[cont]
+        frame.tkraise()
 
     def place_window_center(self):
-        """Position the toplevel in the center of the screen. Does not
-        account for titlebar height."""
         self.update_idletasks()
         w_height = self.winfo_height()
         w_width = self.winfo_width()
@@ -112,38 +37,152 @@ class DataEntryForm(tk.Tk):
         s_width = self.winfo_screenwidth()
         xpos = (s_width - w_width) // 2
         ypos = (s_height - w_height) // 2
-        self.geometry(f'+{xpos}+{ypos}')
+        self.geometry(f'700x500+{xpos}+{ypos}')
 
-    def enter_data(self):
-        accepted = self.accept_var.get()
 
-        if accepted == "Accepted":
-            # User info
-            firstname = self.first_name_entry.get()
-            lastname = self.last_name_entry.get()
+class StartPage(tk.Frame):
+    def __init__(self, parent, controller, themename="superhero", **kwargs):
+        super().__init__(parent, **kwargs)
+        self.style = ttk.Style(theme=themename)
+        self.title = "Data Entry Form"
+        frame = tk.Frame(self)
+        frame.pack()
+        label = tk.Label(self, text="Start Page", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
 
-            if firstname and lastname:
-                title = self.title_combobox.get()
-                age = self.age_spinbox.get()
-                nationality = self.nationality_combobox.get()
+        button = tk.Button(self, text="Visit Page 1", command=lambda: controller.show_frame(PageOne))
+        button.pack()
 
-                # Course info
-                registration_status = self.reg_status_var.get()
-                numcourses = self.numcourses_spinbox.get()
-                numsemesters = self.numsemesters_spinbox.get()
+        button2 = tk.Button(self, text="Visit Page 2", command=lambda: controller.show_frame(PageTwo))
+        button2.pack()
 
-                print("First name: ", firstname, "Last name: ", lastname)
-                print("Title: ", title, "Age: ", age, "Nationality: ", nationality)
-                print("# Courses: ", numcourses, "# Semesters: ", numsemesters)
-                print("Registration status", registration_status)
-                print("------------------------------------------")
-            else:
-                tk.messagebox.showwarning(title="Error", message="First name and last name are required.")
-        else:
-            tk.messagebox.showwarning(title="Error", message="You have not accepted the terms")
+
+class PageOne(tk.Frame):
+    def __init__(self, parent, controller, themename="superhero", **kwargs):
+        super().__init__(parent, **kwargs)
+        self.style = ttk.Style(theme=themename)
+        self.title = "Data Entry Form"
+        frame = tk.Frame(self)
+        frame.pack()
+
+        button1 = tk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+        button1.pack()
+
+        button2 = tk.Button(self, text="Page Two", command=lambda: controller.show_frame(PageTwo))
+        button2.pack()
+
+        # Saving User Info
+        user_info_frame = ttk.LabelFrame(frame, bootstyle="secondary", text="Data Input")
+        user_info_frame.grid(row=0, column=0, padx=20, pady=10)
+
+        self.Start_point_label = tk.Label(user_info_frame, text="Starting Point")
+        self.Start_point_combobox = ttk.Combobox(user_info_frame, values=["", "Daet", "Talisay", "Basud"])
+        self.Start_point_label.grid(row=0, column=2)
+        self.Start_point_combobox.grid(row=1, column=2)
+
+        self.age_label = tk.Label(user_info_frame, text="Number of helper")
+        self.age_spinbox = tk.Spinbox(user_info_frame, from_=1, to=110)
+        self.age_label.grid(row=2, column=2)
+        self.age_spinbox.grid(row=3, column=2)
+
+        for widget in user_info_frame.winfo_children():
+            widget.grid_configure(padx=10, pady=5)
+
+        # Destination Frame
+        self.destination_frame = ttk.LabelFrame(frame, bootstyle="secondary", text="Destination Input")
+        self.destination_frame.grid(row=1, column=0, sticky="news", padx=15, pady=10)
+
+        # Initialize all_entries list
+        self.all_entries = []
+
+        # Button
+        self.addboxButton = ttk.Button(self.destination_frame, bootstyle="info-outline", text="Add Destination", command=self.addBox)
+        self.addboxButton.grid(row=0, column=2, sticky="news", padx=20, pady=10)
+
+        self.showButton = ttk.Button(frame, bootstyle="info-outline", text="Start Simulation", command=self.startSimulation)
+        self.showButton.grid(row=2, column=0, sticky="news", padx=20, pady=10)
+
+    def addBox(self):
+        print("ADD")
+        from_label = tk.Label(self.destination_frame, text='Destination')
+        from_label.grid(row=len(self.all_entries) * 2, column=1)
+
+        ent1 = ttk.Entry(self.destination_frame)
+        ent1.grid(row=len(self.all_entries) * 2 + 1, column=1)
+
+        to_label = tk.Label(self.destination_frame, text='Quantity')
+        to_label.grid(row=len(self.all_entries) * 2, column=3)
+
+        ent2 = tk.Spinbox(self.destination_frame, from_=1, to=110)
+        ent2.grid(row=len(self.all_entries) * 2 + 1, column=3)
+
+        self.all_entries.append((ent1, ent2))
+
+    def showEntries(self):
+        for number, (ent1, ent2) in enumerate(self.all_entries):
+            print(number, ent1.get(), ent2.get())
+
+    def startSimulation(self):
+        # Destroy the current window
+        self.destroy()
+
+        # Create a new window for the animated GIF
+        gif_window = ttk.Window()
+        gif_window.title("Animated GIF")
+        gif_window.geometry("700x500")
+
+        # Create an instance of the AnimatedGif class in the new window
+        animated_gif = AnimatedGif(gif_window, duration=5000)  # Specify the duration in milliseconds
+        animated_gif.pack(fill=tk.BOTH, expand=tk.YES)
+
+
+class PageTwo(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Page Two!!!", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        button1 = tk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+        button1.pack()
+
+        button2 = tk.Button(self, text="Page One", command=lambda: controller.show_frame(PageOne))
+        button2.pack()
+
+
+class AnimatedGif(ttk.Frame):
+    def __init__(self, master, duration, **kwargs):
+        super().__init__(master, **kwargs)
+        self.duration = duration
+
+        # open the GIF and create a cycle iterator
+        file_path = Path(__file__).parent / "spinners.gif"
+        with Image.open(file_path) as im:
+            # create a sequence
+            sequence = ImageSequence.Iterator(im)
+            images = [ImageTk.PhotoImage(s) for s in sequence]
+            self.image_cycle = cycle(images)
+
+            # length of each frame
+            self.framerate = im.info["duration"]
+
+        self.img_container = ttk.Label(self, image=next(self.image_cycle))
+        self.img_container.pack(fill=tk.BOTH, expand=tk.YES)
+        self.after(self.framerate, self.next_frame)
+
+    def next_frame(self):
+        """Update the image for each frame"""
+        self.img_container.configure(image=next(self.image_cycle))
+        self.after(self.framerate, self.next_frame)
+
+    def start_animation(self):
+        self.pack(fill=tk.BOTH, expand=tk.YES)
+        self.after(self.duration, self.destroy_master)  # Destroy master after the specified duration
+
+    def destroy_master(self):
+        if self.master and self.master.winfo_exists():
+            self.master.destroy()
 
 
 if __name__ == "__main__":
-
-    app = DataEntryForm()
+    app = SeaofBTCapp()
     app.mainloop()
