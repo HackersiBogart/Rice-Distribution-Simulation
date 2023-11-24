@@ -5,6 +5,9 @@ from pathlib import Path
 from itertools import cycle
 from PIL import Image, ImageTk, ImageSequence
 import os
+import random
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 LARGE_FONT = ("Verdana", 12)
 
@@ -205,8 +208,24 @@ class PageTwo(tk.Frame):
         button1 = ttk.Button(self, bootstyle="info-outline", text="Back to Home",
                              command=lambda: controller.show_frame(StartPage))
         button1.pack(side=tk.TOP, anchor="nw", padx=10, pady=10)
+        self.distributors = []
+        self.destinations = []
+        self.selected_distributor = None
+        self.selected_destinations = []
+        self.delivery_time = 0
 
+        self.add_distributor("Distributor 1", 0)
+        self.add_distributor("Distributor 2", 5)
+        self.add_distributor("Distributor 3", 10)
 
+        self.add_destination("Dest 1", 2, 100)
+        self.add_destination("Dest 2", 4, 50)
+        self.add_destination("Dest 3", 6, 75)
+        self.add_destination("Dest 4", 8, 120)
+
+        self.plot_button = ttk.Button(self, bootstyle="info-outline", text="See Result",
+                                      command=self.plot_distribution_map)
+        self.plot_button.pack(side=tk.RIGHT, anchor="se", padx=20, pady=30)
 
         self.style = ttk.Style(theme="superhero")
 
@@ -216,6 +235,75 @@ class PageTwo(tk.Frame):
 
         self.frames = {}
         self.duration = duration
+
+    def add_distributor(self, name, location):
+        distributor = Distributor(name, location)
+        self.distributors.append(distributor)
+
+    def add_destination(self, name, location, rice_quantity):
+        destination = Destination(name, location, rice_quantity)
+        self.destinations.append(destination)
+
+    def select_random_distributor(self):
+        self.selected_distributor = random.choice(self.distributors)
+
+    def select_random_destinations(self, num_destinations):
+        self.selected_destinations = random.sample(self.destinations, k=num_destinations)
+
+    def calculate_delivery_time(self):
+        total_distance = sum(
+            abs(self.selected_distributor.location - dest.location) for dest in self.selected_destinations)
+        self.delivery_time = total_distance / 10
+
+    def plot_distribution_map(self):
+        # Triggered by the button click
+        self.select_random_distributor()
+        self.select_random_destinations(random.randint(1, len(self.destinations)))
+
+        print(f"Selected Distributor: {self.selected_distributor.name}")
+        print("Selected Destinations:")
+        for dest in self.selected_destinations:
+            print(f"- {dest.name} ({dest.rice_quantity} kg)")
+
+        self.calculate_delivery_time()
+        print(f"Estimated Delivery Time: {self.delivery_time} hours")
+
+        plt.figure(figsize=(10, 6))
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        # Plot distributors
+        for distributor in self.distributors:
+            ax.scatter(distributor.location, 0, marker='^', label=distributor.name, s=100)
+
+        # Plot destinations
+        for dest in self.destinations:
+            ax.scatter(dest.location, 0, marker='o', label=f"{dest.name} ({dest.rice_quantity} kg)",
+                       s=dest.rice_quantity)
+
+        # Highlight selected distributor
+        ax.scatter(self.selected_distributor.location, 0, marker='s', color='red', label='Selected Distributor', s=150)
+
+        # Highlight selected destinations
+        for dest in self.selected_destinations:
+            ax.scatter(dest.location, 0, marker='*', color='orange', label=f"Selected {dest.name}",
+                       s=dest.rice_quantity)
+
+        ax.set_xlabel('Location')
+        ax.set_title('Rice Distribution Map')
+        ax.legend()
+
+        # Display delivery time
+        ax.text(5, -5, f"Estimated Delivery Time: {self.delivery_time:.2f} hours", ha='center', va='center',
+                fontsize=12, color='blue')
+
+        # Create a Matplotlib canvas widget and pack it into the PageTwo frame
+        canvas = FigureCanvasTkAgg(fig, master=self)
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        # Display the Matplotlib plot
+        canvas.draw()
+
 
         # open the GIF and create a cycle iterator
         file_path = Path(__file__).parent / "distributor_to_store.gif"
@@ -232,11 +320,9 @@ class PageTwo(tk.Frame):
         self.img_container.pack(fill=tk.BOTH, expand=True)  # Expand to fill available space
         self.img_container.bind("<Configure>", self.center_gif)
         self.after(self.framerate, self.next_frame)
-        button2 = tk.Button(self, text="Page One", command=lambda: controller.show_frame(PageOne))
-        button2.pack()
-        button2 = ttk.Button(self, bootstyle="info-outline", text="See Result",
-                             command=lambda: controller.show_frame(PageOne))
-        button2.pack(side=tk.RIGHT, anchor="se", padx=20, pady=30)
+
+        # Button to trigger the map computation and plotting
+
 
     def next_frame(self):
         """Update the image for each frame"""
@@ -260,7 +346,16 @@ class PageTwo(tk.Frame):
         self.img_container.place(x=x, y=y)
 
 
+class Distributor:
+    def __init__(self, name, location):
+        self.name = name
+        self.location = location
 
+class Destination:
+    def __init__(self, name, location, rice_quantity):
+        self.name = name
+        self.location = location
+        self.rice_quantity = rice_quantity
 
 
 if __name__ == "__main__":
