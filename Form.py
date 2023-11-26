@@ -82,10 +82,14 @@ class StartPage(tk.Frame):
 
 
 class PageOne(tk.Frame):
+
     def __init__(self, parent, controller, themename="superhero", **kwargs):
         tk.Frame.__init__(self, parent)
         self.style = ttk.Style(theme=themename)
         self.title = "Data Entry Form"
+        # Initialize a variable to keep track of the y-coordinate
+        self.last_removed_y = 0
+        self.entry_frames = []
         button1 = ttk.Button(self, bootstyle="info-outline", text="Back to Home",
                              command=lambda: controller.show_frame(StartPage))
         button1.pack(side=tk.TOP, anchor="nw", padx=10, pady=10)
@@ -148,6 +152,7 @@ class PageOne(tk.Frame):
         button2 = ttk.Button(self, bootstyle="info-outline", text="Start Simulation",
                              command=lambda: controller.show_frame(PageTwo))
         button2.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
+
     def addBox(self):
         entry_frame = ttk.Frame(self.inner_frame)
         entry_frame.pack(side=tk.TOP, padx=10, pady=5, fill=tk.X)
@@ -164,8 +169,7 @@ class PageOne(tk.Frame):
         ent2 = tk.Spinbox(entry_frame, from_=1, to=110)
         ent2.pack(side=tk.LEFT, padx=5)
 
-        self.all_entries.append((ent1, ent2))
-        self.all_labels.append((from_label, to_label))
+        self.entry_frames.append(entry_frame)
 
         # Update the scroll region of the canvas
         self.canvas.update_idletasks()
@@ -174,16 +178,11 @@ class PageOne(tk.Frame):
         # Add this line to handle the inner frame's resizing
         self.inner_frame.update_idletasks()
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
     def removeLastBox(self):
-        if self.all_entries:
-            ent1, ent2 = self.all_entries.pop()
-            ent1.destroy()
-            ent2.destroy()
-
-        if self.all_labels:
-            from_label, to_label = self.all_labels.pop()
-            from_label.destroy()
-            to_label.destroy()
+        if self.entry_frames:
+            entry_frame = self.entry_frames.pop()
+            entry_frame.destroy()
 
         # Update the scroll region of the canvas
         self.canvas.update_idletasks()
@@ -192,9 +191,7 @@ class PageOne(tk.Frame):
         # Add this line to handle the inner frame's resizing
         self.inner_frame.update_idletasks()
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
-    def showEntries(self):
-        for number, (ent1, ent2) in enumerate(self.all_entries):
-            print(number, ent1.get(), ent2.get())
+
 
 
 class PageTwo(tk.Frame):
