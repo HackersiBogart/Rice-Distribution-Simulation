@@ -249,7 +249,8 @@ class PageTwo(tk.Frame):
 
     def calculate_delivery_time(self):
         total_distance = sum(
-            abs(self.selected_distributor.location - dest.location) for dest in self.selected_destinations)
+            abs(self.selected_distributor.location - dest.location) for dest in self.selected_destinations
+        )
         self.delivery_time = total_distance / 10
 
     def plot_distribution_map(self):
