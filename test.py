@@ -7,7 +7,8 @@ from ttkbootstrap.tableview import Tableview
 
 LARGE_FONT = ("Verdana", 12)
 
-
+truck = None
+move_next_func = None
 class SeaofBTCapp(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -18,7 +19,7 @@ class SeaofBTCapp(tk.Tk):
         self.place_window_center()
         self.frames = {}
 
-        for F in (StartPage, PageOne, PageTwo, SimulationResultPage):
+        for F in (StartPage, PageTwo, SimulationResultPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.pack(fill=tk.BOTH, expand=True)
@@ -68,12 +69,12 @@ class StartPage(tk.Frame):
             self.label1.place(relx=.5, rely=.4, anchor="c")
 
         self.button = ttk.Button(self, bootstyle="info", text="Let's Start", width=50,
-                                 command=lambda: controller.show_frame(PageOne))
+                                 command=lambda: controller.show_frame(PageTwo))
         self.button.pack(side=TOP, anchor=S)
         self.button.place(relx=.5, rely=.7, anchor="c")  # Adjusted rely value
 
         self.button2 = ttk.Button(self, bootstyle="danger-outline", text="Exit", width=50,
-                                  command=lambda: controller.show_frame(PageTwo))
+                                  command=lambda: controller.show_frame(StartPage))
         self.button2.pack(side=TOP, anchor=S)
         self.button2.place(relx=.5, rely=.78, anchor="c")  # Adjusted rely value
 
@@ -123,119 +124,6 @@ D3_to_M12_time = 2
 D3_to_M13_time = 2
 D3_to_M14_time = 2
 
-
-class PageOne(tk.Frame):
-
-    def __init__(self, parent, controller, themename="superhero", **kwargs):
-        tk.Frame.__init__(self, parent)
-        self.style = ttk.Style(theme=themename)
-        self.title = "Data Entry Form"
-        # Initialize a variable to keep track of the y-coordinate
-        self.last_removed_y = 0
-        self.entry_frames = []
-        button1 = ttk.Button(self, bootstyle="info-outline", text="Back to Home",
-                             command=lambda: controller.show_frame(StartPage))
-        button1.pack(side=tk.TOP, anchor="nw", padx=10, pady=10)
-        # Saving User Info
-        user_info_frame = ttk.LabelFrame(self, bootstyle="secondary", text="Data Input", width=100, height=100)
-        user_info_frame.pack(side=tk.LEFT, padx=20, pady=10)
-
-        self.Start_point_label = tk.Label(user_info_frame, text="Starting Point")
-        self.Start_point_combobox = ttk.Combobox(user_info_frame, values=["", "D1", "D2", "D3"])
-        self.Start_point_label.pack(side=tk.TOP, padx=10, pady=5)
-        self.Start_point_combobox.pack(side=tk.TOP, padx=10, pady=5)
-        self.age_label = tk.Label(user_info_frame, text="Number of helper")
-        self.age_spinbox = tk.Spinbox(user_info_frame, from_=1, to=110)
-        self.age_label.pack(side=tk.TOP, padx=10, pady=5)
-        self.age_spinbox.pack(side=tk.TOP, padx=10, pady=5)
-
-        # Destination Frame
-        self.destination_frame = ttk.LabelFrame(self, bootstyle="secondary", text="Destination Input", width=200,
-                                                height=200)
-        self.destination_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=15, pady=10)
-
-        # Create a canvas inside the destination_frame
-        self.canvas = tk.Canvas(self.destination_frame)
-        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        # Create a frame to hold the widgets inside the canvas
-        self.inner_frame = ttk.Frame(self.canvas)
-        self.inner_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        # Create a scrollbar and associate it with the canvas
-        self.yscrollbar = ttk.Scrollbar(self.destination_frame, bootstyle="info-round", orient="vertical",
-                                        command=self.canvas.yview)
-        self.yscrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.canvas.configure(yscrollcommand=self.yscrollbar.set)
-
-        # Configure the canvas to scroll the inner_frame
-        self.canvas.create_window((0, 0), window=self.inner_frame, anchor=tk.NW)
-
-        # Bind the canvas to the scroll region
-        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-
-        # Add this line to handle the inner frame's resizing
-        self.inner_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-
-        # Initialize all_entries list
-        self.all_entries = []
-        self.all_labels = []
-
-        # Button
-
-        self.addboxButton = ttk.Button(self.destination_frame, bootstyle="info-outline", text="Add Destination",
-                                       command=self.addBox)
-        self.addboxButton.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
-
-        self.removeBoxButton = ttk.Button(self.destination_frame, bootstyle="danger-outline", text="Remove Last Box",
-                                          command=self.removeLastBox)
-        self.removeBoxButton.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
-        button2 = ttk.Button(self, bootstyle="info-outline", text="Start Simulation",
-                             command=lambda: controller.show_frame(PageTwo))
-        button2.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
-
-    def addBox(self):
-        entry_frame = ttk.Frame(self.inner_frame)
-        entry_frame.pack(side=tk.TOP, padx=10, pady=5, fill=tk.X)
-
-        from_label = tk.Label(entry_frame, text='Destination')
-        from_label.pack(side=tk.LEFT)
-
-        ent1 = ttk.Combobox(entry_frame,
-                            values=["", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12",
-                                    "M13", "M14", ])
-        ent1.pack(side=tk.LEFT, padx=5)
-
-        to_label = tk.Label(entry_frame, text='Quantity')
-        to_label.pack(side=tk.LEFT, padx=5)
-
-        ent2 = tk.Spinbox(entry_frame, from_=1, to=110)
-        ent2.pack(side=tk.LEFT, padx=5)
-
-        self.entry_frames.append(entry_frame)
-
-        # Update the scroll region of the canvas
-        self.canvas.update_idletasks()
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
-
-        # Add this line to handle the inner frame's resizing
-        self.inner_frame.update_idletasks()
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
-
-    def removeLastBox(self):
-        if self.entry_frames:
-            entry_frame = self.entry_frames.pop()
-            entry_frame.destroy()
-
-        # Update the scroll region of the canvas
-        self.canvas.update_idletasks()
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
-
-        # Add this line to handle the inner frame's resizing
-        self.inner_frame.update_idletasks()
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
-
-
 class PageTwo(tk.Frame):
     def __init__(self, parent, controller, themename="superhero", **kwargs):
         tk.Frame.__init__(self, parent)
@@ -247,6 +135,7 @@ class PageTwo(tk.Frame):
         result_button = ttk.Button(self, bootstyle="info-outline", text="show results",
                                    command=lambda: controller.show_frame(SimulationResultPage))
         result_button.pack(side=tk.BOTTOM, anchor="se", padx=10, pady=10)
+
 
         # Add the provided truck movement simulation code here
 
@@ -269,22 +158,18 @@ class PageTwo(tk.Frame):
         # Function to load character images for different directions
         def load_character_images():
             character_images = {
-                "up": tk.PhotoImage(
-                    file="C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\up.png"),
-                "down": tk.PhotoImage(
-                    file="C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\down.png"),
-                "left": tk.PhotoImage(
-                    file="C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\left.png"),
-                "right": tk.PhotoImage(
-                    file="C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\right.png")
+                "up": tk.PhotoImage(file="C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\up.png"),
+                "down": tk.PhotoImage(file="C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\down.png"),
+                "left": tk.PhotoImage(file="C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\left.png"),
+                "right": tk.PhotoImage(file="C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\right.png")
             }
             return character_images
 
+
         def move_truck(canvas, start, destination, character_images, map_image, map_scale):
             global truck, move_next_func
-            truck = None
-            move_next_func = None
             truck_width = 50
+
             truck_images = {
                 "up": character_images["up"],
                 "down": character_images["down"],
@@ -395,7 +280,7 @@ class PageTwo(tk.Frame):
                 canvas.after_cancel(move_next_func)  # Stop the movement function if running
 
         def start_movement():
-            input_sequence = input_sequence_entry.get()  # Get the sequence entered by the user
+            input_sequence = self.input_sequence_entry.get()  # Get the sequence entered by the user
             sequence = input_sequence.split(",")  # Split the input into a list of points
 
             positions = {
@@ -422,7 +307,7 @@ class PageTwo(tk.Frame):
             sequence_positions = [pos for pos in sequence_positions if pos is not None]
 
             if sequence_positions:
-                move_truck_sequence(canvas, sequence_positions, load_character_images(), map_image, map_scale)
+                move_truck_sequence(canvas, sequence_positions, load_character_images(), self.map_image, self.map_scale)
             else:
                 print("Invalid sequence of points")
 
@@ -445,34 +330,53 @@ class PageTwo(tk.Frame):
 
             move_to_next_position(None, sequence_positions)  # Start the movement sequence
 
-        left_frame = tk.Frame(self)
-        left_frame.pack(side=tk.LEFT, padx=20, pady=0)
 
-        sequence_label = tk.Label(left_frame, text="Enter sequence (comma-separated):")
-        sequence_label.pack()
+        user_info_frame = ttk.LabelFrame(self, bootstyle="secondary", text="Data Input", width=100, height=100)
+        user_info_frame.pack(side=tk.LEFT, padx=20, pady=10)
+        self.Start_point_label = tk.Label(user_info_frame, text="Starting Point")
+        self.Start_point_combobox = ttk.Combobox(user_info_frame, values=["", "D1", "D2", "D3"])
+        self.Start_point_label.pack(side=tk.TOP, padx=10, pady=(10,5))
+        self.Start_point_combobox.pack(side=tk.TOP, padx=10, pady=(5))
 
-        input_sequence_entry = tk.Entry(left_frame)
-        input_sequence_entry.pack()
+        self.sequence_label = tk.Label(user_info_frame, text="Enter Market sequence (separated by a ',')")
+        self.sequence_label.pack(side=tk.TOP, padx=10, pady=(10,5))
+        self.destination_sequence_entry = ttk.Entry(user_info_frame)
+        self.destination_sequence_entry.pack(side=tk.TOP, padx=10, pady=(5))
 
-        start_sequence_button = tk.Button(left_frame, text="Start Sequence", command=start_movement)
-        start_sequence_button.pack()
+        self.input_sequence_label = ttk.Label(user_info_frame, text="Sequence")
+        self.input_sequence_label.pack(side=tk.TOP, padx=10, pady=(30,5))
+        self.input_sequence_entry = ttk.Entry(user_info_frame)
+        self.input_sequence_entry.pack(side=tk.TOP, padx=10, pady=5)
+        self.update_button = ttk.Button(user_info_frame, text="Update Input Sequence", command=self.update_input_sequence)
+        self.update_button.pack(side=tk.TOP, pady=10)
+        self.start_sequence_button = ttk.Button(user_info_frame, bootstyle="success", text="Start Simulation",
+                                       command=start_movement)
+        self.start_sequence_button.pack(side = TOP, expand = True, fill = BOTH, pady = (20,5))
 
-        reset_button = tk.Button(left_frame, text="Reset Simulation", command=reset_simulation)
-        reset_button.pack()
+        self.reset_button = ttk.Button(user_info_frame, bootstyle="danger-outline", text="Reset", command=reset_simulation)
+        self.reset_button.pack(side = TOP, expand = True, fill = BOTH, pady = 5)
 
-        right_frame = tk.Frame(self)
-        right_frame.pack(side=tk.RIGHT, padx=20, pady=0)
+        self.right_frame = tk.Frame(self)
+        self.right_frame.pack(side=tk.RIGHT, padx=20, pady=0)
 
-        canvas_width = 960
-        canvas_height = 500
+        self.canvas_width = 960
+        self.canvas_height = 500
 
-        map_scale = 50
-        map_image_path = "C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\world_map(small).png"
-        map_image = tk.PhotoImage(file=map_image_path)
+        self.map_scale = 50
+        self.map_image_path = "C:\\Users\\admin\\PycharmProjects\\Rice-Distribution-Simulation\\simulation\\world_map(small).png"
+        self.map_image = tk.PhotoImage(file=self.map_image_path)
 
-        canvas = tk.Canvas(right_frame, width=canvas_width, height=canvas_height)
-        canvas.create_image(0, 0, anchor="nw", image=map_image)
+        canvas = tk.Canvas(self.right_frame, width=self.canvas_width, height=self.canvas_height)
+        canvas.create_image(0, 0, anchor="nw", image=self.map_image)
         canvas.pack()
+
+
+    def update_input_sequence(self):
+        start_point = self.Start_point_combobox.get()
+        destination_sequence = self.destination_sequence_entry.get()
+        concatenated_value = f"{start_point},{destination_sequence}"
+        self.input_sequence_entry.delete(0, tk.END)  # Clear the current entry
+        self.input_sequence_entry.insert(0, concatenated_value)
 
 
 class SimulationResultPage(tk.Frame):
